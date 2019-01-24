@@ -7,7 +7,7 @@ build:
 	GOOS=linux go build alertdispatcher.go
 
 zip:
-	zip alertdispatcher.zip ./alertdispatcher.go
+	zip alertdispatcher.zip ./alertdispatcher
 
 cleanup:
 	rm alertdispatcher.zip
@@ -20,7 +20,7 @@ aws-update-fn:
 	aws --profile=$(AWS_PROFILE) lambda update-function-code --region $(AWS_REGION) --function-name alertdispatcher --zip-file fileb://./alertdispatcher.zip
 
 create: build zip aws-create-fn cleanup
-	@echo "ƛ function craeated"
+	@echo "\e[32mƛ function craeated"
 
 update: build zip aws-update-fn cleanup
-	@echo "ƛ function updated"
+	@echo "\e[32mƛ function updated"
