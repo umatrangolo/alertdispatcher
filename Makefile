@@ -19,7 +19,7 @@ cleanup:
 	rm alertdispatcher
 
 aws-install-fn:
-	aws --profile=$(AWS_PROFILE) lambda create-function --region $(AWS_REGION) --function-name alertdispatcher-$(ALERT_NAME) --memory 128 --role $(AWS_IAM_ROLE) --runtime go1.x --zip-file fileb://./alertdispatcher.zip --handler alertdispatcher-$(ALERT_NAME)
+	aws --profile=$(AWS_PROFILE) lambda create-function --region $(AWS_REGION) --function-name alertdispatcher-$(ALERT_NAME) --memory 128 --role $(AWS_IAM_ROLE) --runtime go1.x --zip-file fileb://./alertdispatcher.zip --handler alertdispatcher-$(ALERT_NAME) --environment "Variables={WEBHOOK=$(SLACK_CH_WEBHOOK),CRITICAL=$(CRITICAL)}"
 
 aws-update-fn:
 	aws --profile=$(AWS_PROFILE) lambda update-function-code --region $(AWS_REGION) --function-name $(ALERT_NAME) --zip-file fileb://./alertdispatcher.zip
