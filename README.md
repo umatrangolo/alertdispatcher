@@ -1,16 +1,15 @@
 # Alert Dispatcher
 
-AWS Lambda fn that forwards CloudWatch alerts delivered throught SNS
-events.
+CloudWatch to SNS integration.
 
 # Usage
 
 You need the following:
 
-1. The ARN of the SNS topic that will be used as a trigger of the
-   lambda fn
+1. The ARN of the SNS topic used by your CloudWatch alarm for
+   notifications.
 2. An IAM role allowing the lambda fn to execute Go code
-3. A Slack webhook that will be used to push message
+3. A Slack webhook that will be used to push message on your ch
 
 To install the fn the first time you can use (e.g.):
 
@@ -27,7 +26,11 @@ make install
 
 The above will compile/pack the Go executable to run in AWS and ship
 it to the AWS Lambda execution environment configuring everything to
-make it work.
+make it work straight away.
+
+The value of the `CRITICAL` variable will instruct the dispatcher to
+notify everyone in the ch (e.g. @here in the Slack message). The
+default behavior is to set this value to *false*.
 
 ugo.matrangolo@gmail.com
 Dublin, 2019
