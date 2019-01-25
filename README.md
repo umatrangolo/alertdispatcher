@@ -1,7 +1,7 @@
 # Alert Dispatcher
 
-AWS Lambda fn that listens for SNS alerts and dispatches to various
-sinks based on their level.
+AWS Lambda fn that forwards CloudWatch alerts delivered throught SNS
+events.
 
 # Usage
 
