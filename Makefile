@@ -11,15 +11,16 @@ build:
 
 zip:
 	@echo ">> Packing λ fn"
-	zip alertdispatcher.zip ./alertdispatcher
+	mv ./alertdispatcher ./alertdispatcher-$(ALERT_NAME)
+	zip alertdispatcher-$(ALERT_NAME).zip ./alertdispatcher-$(ALERT_NAME)
 
 cleanup:
 	@echo ">> Cleaning up"
-	rm alertdispatcher.zip
-	rm alertdispatcher
+	rm alertdispatcher-$(ALERT_NAME).zip
+	rm ./alertdispatcher-$(ALERT_NAME)
 
 aws-install-fn:
-	aws --profile=$(AWS_PROFILE) lambda create-function --region $(AWS_REGION) --function-name alertdispatcher-$(ALERT_NAME) --memory 128 --role $(AWS_IAM_ROLE) --runtime go1.x --zip-file fileb://./alertdispatcher.zip --handler alertdispatcher-$(ALERT_NAME) --environment "Variables={WEBHOOK=$(SLACK_CH_WEBHOOK),CRITICAL=$(CRITICAL)}"
+	aws --profile=$(AWS_PROFILE) lambda create-function --region $(AWS_REGION) --function-name alertdispatcher-$(ALERT_NAME) --memory 128 --role $(AWS_IAM_ROLE) --runtime go1.x --zip-file fileb://./alertdispatcher-$(ALERT_NAME).zip --handler alertdispatcher-$(ALERT_NAME) --environment "Variables={WEBHOOK=$(SLACK_CH_WEBHOOK),CRITICAL=$(CRITICAL)}"
 
 aws-update-fn:
 	aws --profile=$(AWS_PROFILE) lambda update-function-code --region $(AWS_REGION) --function-name $(ALERT_NAME) --zip-file fileb://./alertdispatcher.zip
