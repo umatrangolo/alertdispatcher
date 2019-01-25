@@ -19,13 +19,21 @@ cleanup:
 	rm alertdispatcher
 
 aws-install-fn:
-	aws --profile=$(AWS_PROFILE) lambda create-function --region $(AWS_REGION) --function-name alertdispatcher --memory 128 --role $(AWS_IAM_ROLE) --runtime go1.x --zip-file fileb://./alertdispatcher.zip --handler alertdispatcher
+	aws --profile=$(AWS_PROFILE) lambda create-function --region $(AWS_REGION) --function-name alertdispatcher-$(ALERT_NAME) --memory 128 --role $(AWS_IAM_ROLE) --runtime go1.x --zip-file fileb://./alertdispatcher.zip --handler alertdispatcher-$(ALERT_NAME)
 
 aws-update-fn:
-	aws --profile=$(AWS_PROFILE) lambda update-function-code --region $(AWS_REGION) --function-name alertdispatcher --zip-file fileb://./alertdispatcher.zip
+	aws --profile=$(AWS_PROFILE) lambda update-function-code --region $(AWS_REGION) --function-name $(ALERT_NAME) --zip-file fileb://./alertdispatcher.zip
 
-install: build zip aws-install-fn cleanup
-	@echo ">> λ function craeated"
+aws-subscribe-sns:
+	@echo ">> Subscribing λ function to SNS topic"
+	aws --profile=$(AWS_PROFILE) sns subscribe --topic-arn $(AWS_SNS_TOPIC_ARN) --protocol lambda --notification-endpoint $(shell aws --profile=hbc-common lambda get-function --function-name alertdispatcher-$(ALERT_NAME) --query Configuration.FunctionArn | sed 's/"//g')
+
+aws-lambda-invoke-sns:
+	@echo ">> Allowing SNS to invoke λ function"
+	aws --profile=$(AWS_PROFILE) lambda add-permission --function-name alertdispatcher-$(ALERT_NAME) --statement-id alertdispatcher-$(ALERT_NAME)-invoke-stmt --action "lambda:InvokeFunction" --principal sns.amazonaws.com --source-arn $(AWS_SNS_TOPIC_ARN)
+
+install: build zip aws-install-fn cleanup aws-subscribe-sns aws-lambda-invoke-sns
+	@echo ">> λ function created"
 
 update: build zip aws-update-fn cleanup
 	@echo ">> λ function updated"
