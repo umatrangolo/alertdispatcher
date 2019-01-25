@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-lambda-go/events"
@@ -32,6 +33,7 @@ type CloudWatchAlarm struct {
 
 func mkSlackAlertFromSNSEvent(snsEvent events.SNSEvent) (*Response, error) {
 	var mkAttachment = func(cwMessage string) (*Attachment, error) {
+		critical := os.Getenv("CRITICAL")
 		cwAlarm := CloudWatchAlarm{}
 		raw := json.RawMessage(cwMessage)
 		err := json.Unmarshal([]byte(raw), &cwAlarm)
@@ -39,17 +41,24 @@ func mkSlackAlertFromSNSEvent(snsEvent events.SNSEvent) (*Response, error) {
 			return nil, fmt.Errorf("errror while unmarshalling cw message: %v", err)
 		}
 
+		message := ""
+		if strings.ToUpper(critical) == "TRUE" {
+			message = fmt.Sprintf("<!here> %s: %s", cwAlarm.State, cwAlarm.Name)
+		} else {
+			message = fmt.Sprintf("%s: %s", cwAlarm.State, cwAlarm.Name)
+		}
+
 		if cwAlarm.State == "ALARM" {
 			return &Attachment{
 				Fallback: fmt.Sprintf("FIRING: %s", cwAlarm.Name),
-				Title: fmt.Sprintf("%s: %s", cwAlarm.State, cwAlarm.Name),
+				Title: message,
 				Color: "#FF0000", // red
 				Text: cwAlarm.Description,
 			}, nil
 		} else if cwAlarm.State == "OK" {
 			return &Attachment{
 				Fallback: fmt.Sprintf("RESOLVED: %s", cwAlarm.Name),
-				Title: fmt.Sprintf("%s: %s", cwAlarm.State, cwAlarm.Name),
+				Title: message,
 				Color: "#008000", // green
 				Text: cwAlarm.Description,
 			}, nil
