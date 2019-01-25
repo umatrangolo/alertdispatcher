@@ -1,0 +1,4 @@
+1. Create the subscription
+aws --profile=hbc-common sns subscribe --topic-arn arn:aws:sns:us-east-1:195056086334:ratpack-alerts --protocol lambda --notification-endpoint arn:aws:lambda:us-east-1:195056086334:function:alertdispatcher
+2. Add the right permission
+aws --profile=hbc-common lambda add-permission --function-name alertdispatcher --statement-id abc123 --action "lambda:InvokeFunction" --principal sns.amazonaws.com --source-arn arn:aws:sns:us-east-1:195056086334:ratpack-alerts
