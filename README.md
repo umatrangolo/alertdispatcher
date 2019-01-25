@@ -18,10 +18,10 @@ To install the fn the first time you can use (e.g.):
 SLACK_CH_WEBHOOK=https://hooks.slack.com/services/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 \
 AWS_SNS_TOPIC_ARN=arn:aws:sns:us-east-1:195056086334:ratpack-alerts \
 AWS_PROFILE=hbc-common \
-AWS_IAM_ROLE=arn:aws:iam::195056086334:role/golambda-role\
-AWS_REGION=us-east-1\
-ALERT_NAME=prometheus-hbc-common-dev-k8s\
-CRITICAL=true\
+AWS_IAM_ROLE=arn:aws:iam::195056086334:role/golambda-role \
+AWS_REGION=us-east-1 \
+ALERT_NAME=prometheus-hbc-common-dev-k8s \
+CRITICAL=true \
 make install
 ```
 
