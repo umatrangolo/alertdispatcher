@@ -82,7 +82,7 @@ func mkSlackAlertFromSNSEvent(snsEvent events.SNSEvent) (*Response, error) {
 		for _, err := range errors {
 			log.Printf("error: %v", err)
 		}
-		return nil, fmt.Errorf("error whhile preparing Slack message")
+		return nil, fmt.Errorf("error while preparing Slack message")
 	}
 
 	resp := Response{
