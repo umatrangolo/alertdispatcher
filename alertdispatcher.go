@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-lambda-go/events"
@@ -83,6 +84,7 @@ func mkSlackAlertFromSNSEvent(snsEvent events.SNSEvent) (*Response, error) {
 }
 
 func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) error {
+	webhook := os.Getenv("WEBHOOK")
 	jsonSnsEvent, err := json.MarshalIndent(snsEvent, "", "\t")
 	if err != nil {
 		log.Printf("error deconding SNS event: %v", err)
@@ -102,7 +104,7 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) error {
 		return err
 	}
 
-	resp, err := http.Post("https://hooks.slack.com/services/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", "application/json", bytes.NewReader(jzon))
+	resp, err := http.Post(webhook, "application/json", bytes.NewReader(jzon))
 	if (err != nil) {
 		log.Printf("error sending alert to slack: %v", err)
 		return err
@@ -119,5 +121,9 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) error {
 }
 
 func main() {
+	if _, ok := os.LookupEnv("WEBHOOK"); !ok {
+		log.Fatal("Unable to get slack webhook frem env (WEBHOOK)")
+	}
+
         lambda.Start(HandleRequest)
 }
