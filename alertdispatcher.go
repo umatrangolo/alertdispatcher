@@ -13,39 +13,90 @@ import (
 )
 
 type Attachment struct {
+	Title string `json:"title"`
+	Fallback string `json:"fallback"`
+	Color string `json:"color"`
 	Text string `json:"text"`
 }
 
 type Response struct {
-	Type string `json:"response_type"`
-	Text string `json:"text"`
 	Attachments []Attachment `json:"attachments"`
 }
 
-func mkSlackAlertFromSNSEvent(snsEvent events.SNSEvent) Response {
+type CloudWatchAlarm struct {
+	Name string `json:"AlarmName"`
+	Description string `json:"AlarmDescription"`
+	State string `json:"NewStateValue"`
+}
+
+func mkSlackAlertFromSNSEvent(snsEvent events.SNSEvent) (*Response, error) {
+	var mkAttachment = func(cwMessage string) (*Attachment, error) {
+		cwAlarm := CloudWatchAlarm{}
+		raw := json.RawMessage(cwMessage)
+		err := json.Unmarshal([]byte(raw), &cwAlarm)
+		if err != nil {
+			return nil, fmt.Errorf("errror while unmarshalling cw message: %v", err)
+		}
+
+		if cwAlarm.State == "ALARM" {
+			return &Attachment{
+				Fallback: fmt.Sprintf("FIRING: %s", cwAlarm.Name),
+				Title: fmt.Sprintf("%s: %s", cwAlarm.State, cwAlarm.Name),
+				Color: "#FF0000", // red
+				Text: cwAlarm.Description,
+			}, nil
+		} else if cwAlarm.State == "OK" {
+			return &Attachment{
+				Fallback: fmt.Sprintf("RESOLVED: %s", cwAlarm.Name),
+				Title: fmt.Sprintf("%s: %s", cwAlarm.State, cwAlarm.Name),
+				Color: "#008000", // green
+				Text: cwAlarm.Description,
+			}, nil
+		} else {
+			return nil, fmt.Errorf("unknown alarm state")
+		}
+	}
+
 	attachments := []Attachment{}
+	errors:= []error{}
 	for _, r := range snsEvent.Records {
-		attachments = append(attachments, Attachment{Text: r.SNS.Message})
+		attachment, err := mkAttachment(r.SNS.Message)
+		if err != nil {
+			errors = append(errors, err)
+		} else {
+			attachments = append(attachments, *attachment)
+		}
+	}
+
+	if len(errors) != 0 {
+		for _, err := range errors {
+			log.Printf("error: %v", err)
+		}
+		return nil, fmt.Errorf("error whhile preparing Slack message")
 	}
 
 	resp := Response{
-		Type: "in_channel",
-		Text: "Alert!",
 		Attachments: attachments,
 	}
 
-	return resp
+	return &resp, nil
 }
 
 func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) error {
-	jsonSnsEvent, err := json.MarshalIndent(snsEvent, "", "  ")
+	jsonSnsEvent, err := json.MarshalIndent(snsEvent, "", "\t")
 	if err != nil {
 		log.Printf("error deconding SNS event: %v", err)
 		return err
 	}
 	log.Printf("Got:\n%s", jsonSnsEvent)
 
-	jzon, err := json.Marshal(mkSlackAlertFromSNSEvent(snsEvent))
+	slackAlert, err := mkSlackAlertFromSNSEvent(snsEvent)
+	if err != nil {
+		log.Printf("error preparing Slack message: %v", err)
+		return err
+	}
+
+	jzon, err := json.Marshal(slackAlert)
 	if err != nil {
 		log.Printf("error marshalling slack response: %v", err)
 		return err
