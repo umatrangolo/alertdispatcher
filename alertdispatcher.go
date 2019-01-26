@@ -94,7 +94,7 @@ func mkSlackAlertFromSNSEvent(snsEvent events.SNSEvent) (*Response, error) {
 
 func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) error {
 	webhook := os.Getenv("WEBHOOK")
-	jsonSnsEvent, err := json.MarshalIndent(snsEvent, "", "\t")
+	jsonSnsEvent, err := json.MarshalIndent(snsEvent, "", "  ")
 	if err != nil {
 		log.Printf("error deconding SNS event: %v", err)
 		return err
