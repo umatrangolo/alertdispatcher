@@ -26,6 +26,7 @@ together:
 | *SNS Topic ARN* | This is the ARN of the SNS topic that is configured as notification point in the CW alert configuration |
 | *IAM Role* | An IAM role with a policy that will allow our SNS topic to invoke our λ fn |
 | *Slack Ch Webhook* | You need to create an [incoming webhook](https://api.slack.com/incoming-webhooks) to allow the λ fn to push messages in the ch |
+| *Alert Name* | The name of the alert: it will be used to create an unique name for the λ fn |
 
 A `Makefile` is provided that automates everything. For example,
 assuming we have all the above we can install the function with:
