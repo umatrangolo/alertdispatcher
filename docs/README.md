@@ -36,7 +36,7 @@ AWS_SNS_TOPIC_ARN=arn:aws:sns:us-east-1:aaaaaaaaaaaa:foo-alerts \
 AWS_PROFILE=default \
 AWS_IAM_ROLE=arn:aws:iam::xxxxxxxxxxxxx:role/golambda-role \
 AWS_REGION=us-east-1 \
-ALERT_NAME=prometheus-hbc-common-dev-k8s \
+ALERT_NAME=my-critical-alert \
 CRITICAL=true \
 make install
 ```
