@@ -7,9 +7,9 @@ CloudWatch to Slack integration.
 There are plenty of examples all over the Internet but the loop is
 always the same:
 
-     +---+   +----+ +--+      +------+
-     |CW |---|SNS |-|λ |--..--|Slack |
-     +---+   +----+ +--+      +------+
+          +---+   +----+   +--+      +------+
+          |CW |---|SNS |---|λ |--..--|Slack |
+          +---+   +----+   +--+      +------+
 
 On an alert triggered by a failing rule on CW an SNS topic gets
 notified that then invokes a λ fn. This fn is the one that parsed the
@@ -23,14 +23,14 @@ together:
 
 | What | Description |
 |------|-------------|
-| SNS Topic ARN | This is the ARN of the SNS topic that is configured as notification point in the CW alert configuration |
-| IAM Role | An IAM role with a policy that will allow our SNS topic to invoke our λ fn |
-| Slack Ch Webhook | You need to create an [incoming webhook](https://api.slack.com/incoming-webhooks) to allow the λ fn to push messages in the ch |
+| *SNS Topic ARN* | This is the ARN of the SNS topic that is configured as notification point in the CW alert configuration |
+| *IAM Role* | An IAM role with a policy that will allow our SNS topic to invoke our λ fn |
+| *Slack Ch Webhook* | You need to create an [incoming webhook](https://api.slack.com/incoming-webhooks) to allow the λ fn to push messages in the ch |
 
 A `Makefile` is provided that automates everything. For example,
 assuming we have all the above we can install the function with:
 
-```
+```shell
 SLACK_CH_WEBHOOK=https://hooks.slack.com/services/xxxxx/yyyyyyy/zzzzzzzzzzzzzzzzzz \
 AWS_SNS_TOPIC_ARN=arn:aws:sns:us-east-1:aaaaaaaaaaaa:foo-alerts \
 AWS_PROFILE=default \
