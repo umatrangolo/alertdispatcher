@@ -12,7 +12,7 @@ always the same:
           +---+   +----+   +--+      +------+
 
 On an alert triggered by a failing rule on CW an SNS topic gets
-notified that then invokes a λ fn. This fn is the one that parsed the
+notified that then invokes a λ fn. This fn is the one that parses the
 alert event and forwards it to the target Slack ch.
 
 ## Usage
