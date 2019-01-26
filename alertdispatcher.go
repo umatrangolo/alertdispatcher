@@ -48,7 +48,14 @@ func mkSlackAlertFromSNSEvent(snsEvent events.SNSEvent) (*Response, error) {
 			message = fmt.Sprintf("%s: %s", cwAlarm.State, cwAlarm.Name)
 		}
 
-		if cwAlarm.State == "ALARM" {
+		if cwAlarm.State == "INSTALLED" {
+			return &Attachment{
+				Fallback: fmt.Sprintf("INSTALLED: %s", cwAlarm.Name),
+				Title: message,
+				Color: "#000080", // blue navy
+				Text: cwAlarm.Description,
+			}, nil
+		} else if cwAlarm.State == "ALARM" {
 			return &Attachment{
 				Fallback: fmt.Sprintf("FIRING: %s", cwAlarm.Name),
 				Title: message,
