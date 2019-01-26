@@ -61,6 +61,3 @@ To properly configure the level of needed notification the parameter
 `CRITICAL` is used; putting it to `true` will make the the dispatcher
 to notify everyone. The default behavior is to just push the alert in
 the ch wout any notification.
-
-ugo.matrangolo@gmail.com
-Dublin, 2019
