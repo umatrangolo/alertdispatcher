@@ -33,7 +33,7 @@ type CloudWatchAlarm struct {
 
 func mkSlackAlertFromSNSEvent(snsEvent events.SNSEvent) (*Response, error) {
 	var mkAttachment = func(cwMessage string) (*Attachment, error) {
-		critical := os.Getenv("CRITICAL")
+		notify := os.Getenv("NOTIFY")
 		cwAlarm := CloudWatchAlarm{}
 		raw := json.RawMessage(cwMessage)
 		err := json.Unmarshal([]byte(raw), &cwAlarm)
@@ -42,7 +42,7 @@ func mkSlackAlertFromSNSEvent(snsEvent events.SNSEvent) (*Response, error) {
 		}
 
 		message := ""
-		if strings.ToUpper(critical) == "TRUE" {
+		if strings.ToUpper(notify) == "TRUE" {
 			message = fmt.Sprintf("<!here> %s: %s", cwAlarm.State, cwAlarm.Name)
 		} else {
 			message = fmt.Sprintf("%s: %s", cwAlarm.State, cwAlarm.Name)

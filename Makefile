@@ -1,11 +1,5 @@
-ifeq ($(CRITICAL), true)
-	LEVEL 	= critical
-else
-	LEVEL 	= warning
-endif
-
-CRITICAL 	?= false
-LAMBDA_NAME 	= alertdispatcher-$(SLACK_CH_NAME)-$(LEVEL)
+LAMBDA_NAME 	= 	alertdispatcher-$(FN_NAME)
+NOTIFY		?= 	false
 
 help:
 	@echo $(DIRTY)
@@ -38,7 +32,7 @@ aws-install-fn:
 		--runtime go1.x \
 		--zip-file fileb://./$(LAMBDA_NAME).zip \
 		--handler $(LAMBDA_NAME) \
-		--environment "Variables={SLACK_CH=$(SLACK_CH_NAME),WEBHOOK=$(SLACK_CH_WEBHOOK),CRITICAL=$(CRITICAL)}"
+		--environment "Variables={WEBHOOK=$(SLACK_CH_WEBHOOK),NOTIFY=$(NOTIFY)}"
 
 aws-update-fn:
 	aws 	--profile=$(AWS_PROFILE) lambda update-function-code \
