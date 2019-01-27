@@ -59,7 +59,7 @@ aws-subscribe-sns:
 aws-test-integration:
 	aws 	--profile=$(AWS_PROFILE) sns publish \
 		--topic-arn $(AWS_SNS_TOPIC_ARN) \
-		--message "{\"AlarmName\":\"alertdispatcher-test-alert\",\"AlarmDescription\":\"Alertdisparcher has been installed\",\"NewStateValue\":\"INSTALLED\"}"
+		--message "{\"AlarmName\":\"alertdispatcher-subscription-confirmation\",\"AlarmDescription\":\"Confirming subscription\",\"NewStateValue\":\"SUBSCRIBED\"}"
 	@echo ">> Sending test alert. You should see a message in your Slack ch now"
 
 aws-lambda-invoke-sns:
