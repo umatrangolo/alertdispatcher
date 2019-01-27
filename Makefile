@@ -43,19 +43,54 @@ else
 endif
 
 aws-update-fn:
-	aws --profile=$(AWS_PROFILE) lambda update-function-code --region $(AWS_REGION) --function-name alertdispatcher-$(SLACK_CH_NAME) --zip-file fileb://./alertdispatcher-$(SLACK_CH_NAME).zip
+	aws 	--profile=$(AWS_PROFILE) lambda update-function-code \
+		--region $(AWS_REGION) \
+		--function-name alertdispatcher-$(SLACK_CH_NAME) \
+		--zip-file fileb://./alertdispatcher-$(SLACK_CH_NAME).zip
 
 aws-subscribe-sns:
-	@echo ">> Subscribing to $(AWS_SNS_TOPIC_ARN)"
-	aws --profile=$(AWS_PROFILE) sns subscribe --topic-arn $(AWS_SNS_TOPIC_ARN) --protocol lambda --notification-endpoint $(shell aws --profile=hbc-common lambda get-function --function-name alertdispatcher-$(SLACK_CH_NAME) --query Configuration.FunctionArn | sed 's/"//g')
+	@echo 	">> Subscribing to $(AWS_SNS_TOPIC_ARN) with $(level) level"
+ifeq ($(CRITICAL), true)
+	aws 	--profile=$(AWS_PROFILE) sns subscribe \
+		--topic-arn $(AWS_SNS_TOPIC_ARN) \
+		--protocol lambda \
+		--notification-endpoint \
+			$(shell aws 	--profile=$(AWS_PROFILE) lambda get-function \
+					--function-name alertdispatcher-$(SLACK_CH_NAME)-critical \
+					--query Configuration.FunctionArn | sed 's/"//g')
+else
+	aws 	--profile=$(AWS_PROFILE) sns subscribe \
+		--topic-arn $(AWS_SNS_TOPIC_ARN) \
+		--protocol lambda \
+		--notification-endpoint \
+			$(shell aws 	--profile=$(AWS_PROFILE) lambda get-function \
+					--function-name alertdispatcher-$(SLACK_CH_NAME)-warning \
+					--query Configuration.FunctionArn | sed 's/"//g')
+endif
 
 aws-test-integration:
-	aws --profile=$(AWS_PROFILE) sns publish --topic-arn $(AWS_SNS_TOPIC_ARN) --message "{\"AlarmName\":\"alertdispatcher-test-alert\",\"AlarmDescription\":\"Alertdisparcher has been installed\",\"NewStateValue\":\"INSTALLED\"}"
+	aws 	--profile=$(AWS_PROFILE) sns publish \
+		--topic-arn $(AWS_SNS_TOPIC_ARN) \
+		--message "{\"AlarmName\":\"alertdispatcher-test-alert\",\"AlarmDescription\":\"Alertdisparcher has been installed\",\"NewStateValue\":\"INSTALLED\"}"
 	@echo ">> Sending test alert. You should see a message in your Slack ch now"
 
 aws-lambda-invoke-sns:
 	@echo ">> Allowing SNS to invoke λ function"
-	aws --profile=$(AWS_PROFILE) lambda add-permission --function-name alertdispatcher-$(SLACK_CH_NAME) --statement-id alertdispatcher-$(SLACK_CH_NAME)-invoke-stmt --action "lambda:InvokeFunction" --principal sns.amazonaws.com --source-arn $(AWS_SNS_TOPIC_ARN)
+ifeq ($(CRITICAL), true)
+	aws 	--profile=$(AWS_PROFILE) lambda add-permission \
+		--function-name alertdispatcher-$(SLACK_CH_NAME)-critical \
+		--statement-id alertdispatcher-$(SLACK_CH_NAME)-invoke-stmt \
+		--action "lambda:InvokeFunction" \
+		--principal sns.amazonaws.com \
+		--source-arn $(AWS_SNS_TOPIC_ARN)
+else
+	aws 	--profile=$(AWS_PROFILE) lambda add-permission \
+		--function-name alertdispatcher-$(SLACK_CH_NAME)-warning \
+		--statement-id alertdispatcher-$(SLACK_CH_NAME)-invoke-stmt \
+		--action "lambda:InvokeFunction" \
+		--principal sns.amazonaws.com \
+		--source-arn $(AWS_SNS_TOPIC_ARN)
+endif
 
 install: build zip aws-install-fn cleanup
 	@echo ">> λ function created"
@@ -63,4 +98,4 @@ install: build zip aws-install-fn cleanup
 update: build zip aws-update-fn cleanup
 	@echo ">> λ function updated"
 
-subscribe: aws-subscribe-sns
+subscribe: aws-subscribe-sns aws-lambda-invoke-sns aws-test-integration
