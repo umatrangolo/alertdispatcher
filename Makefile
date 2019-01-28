@@ -4,9 +4,9 @@ NOTIFY		?= 	false
 help:
 	@echo $(DIRTY)
 	@echo   "Available targets:"
-	@echo   "\thelp\t- Prints this help"
-	@echo 	"\tinstall\t- Builds, zips and installs the λ fn"
-	@echo	"\tupdate\t- Updates the λ fn"
+	@echo   "\thelp\t\t- Prints this help"
+	@echo 	"\tinstall\t\t- Builds, zips and installs the λ fn"
+	@echo	"\tupdate\t\t- Updates the λ fn"
 	@echo	"\tsubscribe\t- Subscribes the λ fn to a target topic"
 
 build:
