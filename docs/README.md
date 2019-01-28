@@ -65,7 +65,7 @@ start forwarding the alerts coming out from it to your Slack ch:
 ```shell
 AWS_PROFILE=hbc-common\
 AWS_REGION=us-east-1\
-AWS_SNS_TOPIC_ARN=arn:aws:sns:us-east-1:195056086334:ratpack-alerts\
+AWS_SNS_TOPIC_ARN=arn:aws:sns:us-east-1:123456564343:not-important-alerts\
 FN_NAME=my-not-important-alert
 make subscribe
 ```
