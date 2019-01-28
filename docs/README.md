@@ -43,11 +43,10 @@ where:
 | What | Key | Description |
 |------|-----|-------------|
 |  Slack ch info | SLACK_CH_WEBHOOK | [Incoming webhook](https://api.slack.com/incoming-webhooks) for you Slack ch |
-| *AWS Basic Info* | AWS_[PROFILE|REGION] | Amazon Credentials profile and region to work with |
+| *AWS Basic Info* | AWS_[PROFILE,REGION] | Amazon Credentials profile and region to work with |
 | *Function Name* | FN_NAME | The name of the λ fn |
-| *IAM Role* | AWS_IAM_ROLE | An IAM role with a policy allowing our λ fn to execute |
-| IAM Role | AWS_IAM_ROLE | The IAM role the λ fn has to use to execute |
-| Notification | NOTIFY | If set to *true* it will notify everyone in the ch (e.g. critical alerts that have to be sorted out quickly) |
+| *IAM Role* | AWS_IAM_ROLE | The IAM role the λ fn has to use to execute |
+| *Notification* | NOTIFY | If set to *true* it will notify everyone in the ch (e.g. critical alerts that have to be sorted out quickly) |
 
 The above will compile/pack the Go executable to run in AWS and ship
 it to the AWS Lambda execution environment configuring everything to
@@ -75,7 +74,7 @@ where:
 
 | What | Key | Description |
 |------|-----|-------------|
-| *AWS Basic Info* | AWS_[PROFILE|REGION] | Amazon Credentials profile and region to work with |
+| *AWS Basic Info* | AWS_[PROFILE,REGION] | Amazon Credentials profile and region to work with |
 | *Function Name* | FN_NAME | The name of the λ fn |
 | *SNS Topic ARN* | AWS_SNS_TOPIC_ARN | This is the ARN of the SNS topic that is configured as notification point of the CW alert |
 
