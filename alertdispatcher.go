@@ -10,15 +10,15 @@ import (
 	"os"
 	"strings"
 
-	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
 )
 
 type Attachment struct {
-	Title string `json:"title"`
+	Title    string `json:"title"`
 	Fallback string `json:"fallback"`
-	Color string `json:"color"`
-	Text string `json:"text"`
+	Color    string `json:"color"`
+	Text     string `json:"text"`
 }
 
 type Response struct {
@@ -26,9 +26,9 @@ type Response struct {
 }
 
 type CloudWatchAlarm struct {
-	Name string `json:"AlarmName"`
+	Name        string `json:"AlarmName"`
 	Description string `json:"AlarmDescription"`
-	State string `json:"NewStateValue"`
+	State       string `json:"NewStateValue"`
 }
 
 func mkSlackAlertFromSNSEvent(snsEvent events.SNSEvent) (*Response, error) {
@@ -38,7 +38,7 @@ func mkSlackAlertFromSNSEvent(snsEvent events.SNSEvent) (*Response, error) {
 		raw := json.RawMessage(cwMessage)
 		err := json.Unmarshal([]byte(raw), &cwAlarm)
 		if err != nil {
-			return nil, fmt.Errorf("errror while unmarshalling cw message: %v", err)
+			return nil, fmt.Errorf("error while unmarshalling cw message: %v", err)
 		}
 
 		message := ""
@@ -51,23 +51,23 @@ func mkSlackAlertFromSNSEvent(snsEvent events.SNSEvent) (*Response, error) {
 		if cwAlarm.State == "SUBSCRIBED" {
 			return &Attachment{
 				Fallback: fmt.Sprintf("SUBSCRIBED: %s", cwAlarm.Name),
-				Title: message,
-				Color: "#000080", // blue navy
-				Text: cwAlarm.Description,
+				Title:    message,
+				Color:    "#000080", // blue navy
+				Text:     cwAlarm.Description,
 			}, nil
 		} else if cwAlarm.State == "ALARM" {
 			return &Attachment{
 				Fallback: fmt.Sprintf("FIRING: %s", cwAlarm.Name),
-				Title: message,
-				Color: "#FF0000", // red
-				Text: cwAlarm.Description,
+				Title:    message,
+				Color:    "#FF0000", // red
+				Text:     cwAlarm.Description,
 			}, nil
 		} else if cwAlarm.State == "OK" {
 			return &Attachment{
 				Fallback: fmt.Sprintf("RESOLVED: %s", cwAlarm.Name),
-				Title: message,
-				Color: "#008000", // green
-				Text: cwAlarm.Description,
+				Title:    message,
+				Color:    "#008000", // green
+				Text:     cwAlarm.Description,
 			}, nil
 		} else {
 			return nil, fmt.Errorf("unknown alarm state")
@@ -75,7 +75,7 @@ func mkSlackAlertFromSNSEvent(snsEvent events.SNSEvent) (*Response, error) {
 	}
 
 	attachments := []Attachment{}
-	errors:= []error{}
+	errors := []error{}
 	for _, r := range snsEvent.Records {
 		attachment, err := mkAttachment(r.SNS.Message)
 		if err != nil {
@@ -121,7 +121,7 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) error {
 	}
 
 	resp, err := http.Post(webhook, "application/json", bytes.NewReader(jzon))
-	if (err != nil) {
+	if err != nil {
 		log.Printf("error sending alert to slack: %v", err)
 		return err
 	}
@@ -133,7 +133,7 @@ func HandleRequest(ctx context.Context, snsEvent events.SNSEvent) error {
 		log.Printf("alert successfully delivered")
 	}
 
-        return nil
+	return nil
 }
 
 func main() {
@@ -141,5 +141,5 @@ func main() {
 		log.Fatal("Unable to get slack webhook frem env (WEBHOOK)")
 	}
 
-        lambda.Start(HandleRequest)
+	lambda.Start(HandleRequest)
 }
